@@ -7629,8 +7629,8 @@ pkg.$view = function(v) {
 
     if (zebra.isString(v)) {
         return rgb.hasOwnProperty(v) ? rgb[v]
-                                     : (pkg.borders && pkg.borders.hasOwnProperty(v) ? pkg.borders[v]
-                                                                                     : new rgb(v));
+                                     : (pkg.borders != null && pkg.borders.hasOwnProperty(v) ? pkg.borders[v]
+                                                                                             : new rgb(v));
     }
 
     if (Array.isArray(v)) {
@@ -10904,19 +10904,23 @@ pkg.PaintManager = Class(pkg.Manager, [
                          //   console.log("Paintmanager.repaint() $timer: " +  canvas.$da.x + "," + canvas.$da.y + "," + canvas.$da.width + "," + canvas.$da.height);
 
                             g.translate(canvas.x, canvas.y);
+
+                            if (canvas.bg == null || (typeof canvas.bg.isOpaque !== 'undefined' && canvas.bg.a !== 1)) {
+                                // TODO: make sure it works on bloody android
+                                // g.save();
+                                // g.setTransform(1 * g.$states[g.$curState].sx * 2, 0, 0, 1 * g.$states[g.$curState].sy * 2, 0, 0);
+
+                                g.clearRect(canvas.$da.x, canvas.$da.y,
+                                            canvas.$da.width, canvas.$da.height);
+                                // g.restore();
+                            }
+
+
                             g.clipRect(canvas.$da.x,
                                        canvas.$da.y,
                                        canvas.$da.width,
                                        canvas.$da.height);
 
-                            if (canvas.bg == null) {
-                                // TODO: make sure it works on bloody android
-                                g.save();
-                                g.setTransform(1 * g.$states[g.$curState].sx * 2, 0, 0, 1 * g.$states[g.$curState].sy * 2, 0, 0);
-                                g.clearRect(canvas.$da.x, canvas.$da.y,
-                                            canvas.$da.width, canvas.$da.height);
-                                g.restore();
-                            }
 
                             $this.paint(g, canvas);
                             canvas.$da.width = -1; //!!!
